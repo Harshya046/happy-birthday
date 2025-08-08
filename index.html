@@ -1,0 +1,860 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Birthday Surprise — Madam Ji</title>
+<link href="https://fonts.googleapis.com/css2?family=Allura&family=Poppins:wght@300;600;800&display=swap" rel="stylesheet">
+<style>
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(ellipse at 60% 20%, #ffb3d9 0%, #8e6cff 60%, #24122f 100%);
+  opacity: 0.82;
+  pointer-events: none;
+}
+.glow-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(circle at 70% 80%, #ff6fa3 0%, transparent 60%),
+              radial-gradient(circle at 20% 30%, #8e6cff 0%, transparent 70%);
+  opacity: 0.18;
+  filter: blur(32px) saturate(1.2);
+}
+.falling-heart {
+  position: fixed;
+  top: -40px;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.85;
+  animation: fallHeart linear forwards;
+  will-change: transform, opacity;
+}
+@keyframes fallHeart {
+  0% { transform: translateY(0) scale(var(--h-scale,1)); opacity: 0.9; }
+  80% { opacity: 0.85; }
+  100% { transform: translateY(var(--h-end,100vh)) scale(var(--h-scale,1)); opacity: 0; }
+}
+@keyframes floatHeart {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  80% { opacity: 0.8; }
+  100% { transform: translateY(-120px) scale(1.3); opacity: 0; }
+}
+@keyframes btnPulse {
+  0% { box-shadow: 0 0 0 0 #ff6fa380; }
+  70% { box-shadow: 0 0 0 12px #ff6fa300; }
+  100% { box-shadow: 0 0 0 0 #ff6fa300; }
+}
+@keyframes fadeInCard {
+  from { opacity: 0; transform: scale(0.97) translateY(30px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+:root{
+  --bg1:#090615; --bg2:#24122f;
+  --accent1:#ff6fa3; --accent2:#8e6cff;
+  --muted:#cfc9d6;
+  --card:#ffffff10;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:'Allura','Poppins',system-ui,Segoe UI,Arial,cursive;color:#fff;background:linear-gradient(180deg,var(--bg1),var(--bg2));overflow:hidden}
+.greet h1{
+  font-family: 'Allura', cursive !important;
+  font-weight: 800 !important;
+}
+.glow-bounce{
+  font-family: 'Allura', cursive !important;
+  font-weight: 800 !important;
+}
+.app{position:relative;width:100%;height:100vh;display:flex;align-items:center;justify-content:center;padding:28px}
+
+/* BIG rotating heart background (centered) */
+.bg-heart-wrap{
+  position: absolute; inset:0; display:flex;align-items:center;justify-content:center; z-index:0;
+  pointer-events:none;
+}
+.bg-heart {
+  width: 60vmin;
+  height: 60vmin;
+  max-width: 800px;
+  max-height: 800px;
+  transform-origin: center center;
+  animation: bgRotate 28s linear infinite;
+  filter: blur(2.5px) saturate(1.08) contrast(1.08) brightness(0.85) !important;
+  opacity: 0.38 !important;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 1fr;
+  gap: 8px;
+  clip-path: path("M300 540 C 60 400 0 280 120 180 C 200 120 290 170 300 220 C 310 170 400 120 480 180 C 600 280 540 400 300 540 Z");
+  position: relative;
+}
+.bg-heart img{width:100%;height:100%;object-fit:cover;border-radius:8px;}
+
+/* Main container card */
+.card {
+  position:relative; z-index:2; width:100%; max-width:1100px; background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+  border-radius:18px; padding:20px; box-shadow:0 30px 80px rgba(0,0,0,.6);
+  opacity:0; animation: fadeInCard 1.2s cubic-bezier(.4,1.4,.6,1) 0.2s forwards;
+}
+
+/* top controls */
+.top-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.title-left{display:flex;flex-direction:column}
+.title-left .top-small{color:var(--muted);font-size:13px}
+.controls{display:flex;gap:10px;align-items:center}
+.btn{padding:10px 14px;border-radius:10px;border:0;background:linear-gradient(90deg,var(--accent1),var(--accent2));cursor:pointer;color:#111;font-weight:800;transition:transform .18s;}
+.btn:hover, .btn:focus{animation:btnPulse 0.7s;transform:scale(1.07);}
+/* Floating heart on click */
+.floating-heart {
+  position: fixed;
+  left: 0; top: 0;
+  width: 32px; height: 32px;
+  pointer-events: none;
+  z-index: 9999;
+  animation: floatHeart 1.2s forwards;
+  filter: drop-shadow(0 0 12px #ffb3d9);
+}
+.ghost{background:transparent;border:1px solid rgba(255,255,255,.06);color:#fff}
+
+/* layout sections */
+.sections{display:grid;grid-template-columns: 1fr 420px; gap:18px; align-items:start}
+@media (max-width:980px){ .sections{grid-template-columns:1fr; } .right-col{order:2} }
+
+/* Left column: sequence screens stacked */
+.left {
+  display:flex; flex-direction:column; gap:18px;
+}
+
+/* Preparing screen */
+.prepare-screen{display:flex;gap:16px;align-items:center}
+.big-heart-rot {
+  width:220px;height:220px;display:flex;align-items:center;justify-content:center;transform-style:preserve-3d; animation:heartRotate 6.5s linear infinite;
+  filter: drop-shadow(0 18px 60px rgba(255,105,180,.1));
+}
+@keyframes heartRotate{
+  0%{transform: rotateY(0) rotateX(0)}
+  50%{transform: rotateY(180deg) rotateX(10deg)}
+  100%{transform: rotateY(360deg) rotateX(0)}
+}
+.prep-text h2{margin:0;font-size:24px;letter-spacing:.6px}
+.prep-text p{margin:6px 0 0 0;color:var(--muted);font-size:14px}
+
+/* Celebrate screen: one message box */
+.celebrate {background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00)); padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,.03)}
+.celebrate .msg-box{background:linear-gradient(90deg,#fff1 0%, #fff0 100%); padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,.06); box-shadow:0 12px 40px rgba(0,0,0,.25); animation:msgGlow 2.6s infinite}
+@keyframes msgGlow{
+  0%{box-shadow:0 8px 28px rgba(142,108,255,.06)}
+  50%{box-shadow:0 20px 60px rgba(142,108,255,.14)}
+  100%{box-shadow:0 8px 28px rgba(142,108,255,.06)}
+}
+
+/* Greeting big */
+.greet {background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00)); padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,.03); text-align:center}
+.greet h1{font-size:56px;margin:10px 0 6px 0;letter-spacing:1px; font-weight:900; color:#fff;
+  background: linear-gradient(90deg,var(--accent1),var(--accent2)); -webkit-background-clip:text; background-clip:text; color:transparent;
+  animation: greetPulse 1.6s ease-in-out infinite both;
+  text-shadow:0 18px 60px rgba(142,108,255,.12);
+}
+@keyframes greetPulse{
+  0%{transform:scale(0.98); filter:blur(0); opacity:0.9}
+  50%{transform:scale(1.03); filter:blur(.3px); opacity:1}
+  100%{transform:scale(0.99); filter:blur(0); opacity:0.98}
+}
+.greet .sub{color:var(--muted);font-weight:600}
+
+/* You're Amazing container with sequential messages */
+.you-are {display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.you-left{flex:1;min-width:240px}
+.big-pill{background:linear-gradient(90deg,var(--accent1),var(--accent2));padding:12px 14px;border-radius:12px;font-weight:900;color:#111;display:inline-block}
+.msg-seq{margin-top:12px;background:rgba(255,255,255,0.02);padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.03)}
+.msg-display{min-height:86px;display:flex;align-items:center;justify-content:center;font-weight:700;padding:12px;border-radius:10px}
+.seq-controls{display:flex;gap:8px;margin-top:10px}
+
+/* Gallery square frame */
+.right-col{display:flex;flex-direction:column;gap:14px}
+.square-frame{width:100%;height:320px;background:linear-gradient(180deg,#0b0b0d,#161219);border-radius:12px;overflow:hidden;position:relative;border:1px solid rgba(255,255,255,.03)}
+.gallery-img{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform .6s ease,opacity .45s;opacity:0;transform:translateX(100%)}
+.gallery-img.active{opacity:1;transform:translateX(0)}
+.gallery-controls{display:flex;justify-content:center;gap:8px;margin-top:6px}
+
+/* Letter popup */
+.popup-back{position:fixed;inset:0;background:rgba(2,2,6,0.6);display:flex;align-items:center;justify-content:center;z-index:9999;display:none}
+.letter-box{width:92%;max-width:720px;background:linear-gradient(180deg,#fff,#fffbf6);color:#111;padding:22px;border-radius:14px;box-shadow:0 30px 100px rgba(0,0,0,.6)}
+.letter-box h3{margin:0 0 8px 0}
+.letter-box pre{white-space:pre-wrap;font-family:inherit;line-height:1.55;}
+
+/* Ensure special letter text is scrollable */
+.letter-box {
+  max-height: 80vh !important;
+  overflow-y: auto !important;
+  position: relative;
+}
+.love-letter {
+  max-height: 65vh !important;
+  overflow-y: auto !important;
+  padding-right: 8px;
+}
+
+/* Special letter calligraphy font and animated background */
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
+.letter-box {
+  font-family: 'Great Vibes', 'Allura', cursive, serif !important;
+  position: relative;
+  overflow: hidden;
+  background: #fff;
+}
+.love-letter {
+  font-size: 1.5rem;
+  color: #111 !important;
+  text-shadow: 0 2px 12px #fff8, 0 0 2px #fff;
+}
+.letter-box .animated-hearts, .letter-box .animated-sparkles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.letter-box .animated-hearts span {
+  position: absolute;
+  width: 32px; height: 32px;
+  background: url('data:image/svg+xml;utf8,<svg width="32" height="32" viewBox="0 0 32 32" fill="%23ff6fa3" xmlns="http://www.w3.org/2000/svg"><path d="M16 29s13-7.5 13-16S21.5 3 16 10 3 5.5 3 13 16 29 16 29z"/></svg>') center/contain no-repeat;
+  opacity: 0.7;
+  animation: floatHeartLetter 6s linear infinite;
+}
+@keyframes floatHeartLetter {
+  0% { transform: translateY(100%) scale(0.7) rotate(-10deg); opacity: 0.7; }
+  60% { opacity: 1; }
+  100% { transform: translateY(-120%) scale(1.2) rotate(20deg); opacity: 0; }
+}
+.letter-box .animated-sparkles span {
+  position: absolute;
+  width: 12px; height: 12px;
+  background: radial-gradient(circle,#fff 60%,#ffb3d9 100%);
+  border-radius: 50%;
+  opacity: 0.7;
+  animation: sparkleLetter 3.5s linear infinite;
+}
+@keyframes sparkleLetter {
+  0% { transform: scale(0.7); opacity: 0.7; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(0.7); opacity: 0.7; }
+}
+.letter-box .love-letter, .letter-box > div, .letter-box > h3, .letter-box > pre {
+  position: relative;
+  z-index: 1;
+}
+/* play hint */
+.hint{color:var(--muted);font-size:13px}
+
+/* responsive */
+@media (max-width:760px){
+  .greet h1{font-size:34px}
+  .square-frame{height:220px}
+  .bg-heart{width:72vmin;height:72vmin}
+}
+
+/* === User override: Font size and style === */
+html, body {
+  font-size: 1.25rem !important;
+  font-family: 'Poppins', Arial, sans-serif !important;
+}
+.greet h1, .glow-bounce, h1, h2, h3, h4, h5, h6 {
+  font-family: 'Allura', cursive !important;
+  font-size: 3rem !important;
+  font-weight: 400 !important;
+  letter-spacing: 1px;
+}
+.prep-text h2 {
+  font-size: 2.2rem !important;
+}
+.celebrate .msg-box, .msg-display, .big-pill {
+  font-size: 1.3rem !important;
+}
+.greet .sub {
+  font-size: 1.2rem !important;
+}
+
+/* Style for 'Happy Birthday Baby' text */
+.greet h1, .glow-bounce {
+  background: linear-gradient(90deg, #ff6fa3 20%, #8e6cff 80%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent !important;
+  text-shadow: 0 2px 12px #ffb3d9, 0 0 2px #fff;
+}
+.animated-theme-hearts {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.animated-theme-hearts span {
+  position: absolute;
+  width: 48px; height: 48px;
+  background: linear-gradient(135deg, #ffb3d9 60%, #8e6cff 100%);
+  border-radius: 50% 50% 50% 50%/60% 60% 40% 40%;
+  opacity: 0.22;
+  filter: blur(2px) brightness(1.2);
+  animation: themeHeartFloat 12s linear infinite;
+}
+@keyframes themeHeartFloat {
+  0% { transform: translateY(100%) scale(0.7) rotate(-10deg); opacity: 0.18; }
+  40% { opacity: 0.32; }
+  100% { transform: translateY(-120%) scale(1.2) rotate(20deg); opacity: 0.18; }
+}
+
+.collage-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  display: grid;
+  width: 100vw;
+  height: 100vh;
+  grid-template-columns: repeat(auto-fit, minmax(18vw, 1fr));
+  grid-auto-rows: minmax(18vh, 1fr);
+  gap: 2px;
+  opacity: 0.22;
+  filter: blur(2.2px) saturate(1.1) brightness(1.08);
+  animation: collageBgMove 60s linear infinite alternate;
+  background: #fff0;
+}
+.collage-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
+  box-shadow: none;
+  transition: transform 8s cubic-bezier(.4,1.4,.6,1);
+}
+@keyframes collageBgMove {
+  0% { transform: scale(1) translateY(0); }
+  100% { transform: scale(1.04) translateY(-18px); }
+}
+</style>
+</head>
+<body>
+<div class="glow-bg"></div>
+<!-- Collage background images layer -->
+<div class="collage-bg" aria-hidden="true">
+  <img src="./images/IMG-20250808-WA0036.jpg" alt="" />
+  <img src="IMG-20250808-WA0037.jpg" alt="" />
+  <img src="IMG-20250808-WA0038.jpg" alt="" />
+  <img src="IMG-20250808-WA0039.jpg" alt="" />
+  <img src="IMG-20250808-WA0040.jpg" alt="" />
+  <img src="IMG-20250808-WA0041.jpg" alt="" />
+  <img src="IMG-20250808-WA0042.jpg" alt="" />
+  <img src="IMG-20250808-WA0044.jpg" alt="" />
+  <img src="IMG-20250808-WA0045.jpg" alt="" />
+  <img src="IMG-20250808-WA0046.jpg" alt="" />
+  <img src="IMG-20250808-WA0047.jpg" alt="" />
+  <img src="IMG-20250808-WA0048.jpg" alt="" />
+  <img src="IMG-20250808-WA0049.jpg" alt="" />
+  <img src="IMG-20250808-WA0050.jpg" alt="" />
+  <img src="IMG-20250808-WA0051.jpg" alt="" />
+  <img src="IMG-20250808-WA0052.jpg" alt="" />
+  <img src="IMG-20250808-WA0053.jpg" alt="" />
+  <img src="IMG-20250808-WA0054.jpg" alt="" />
+  <img src="WhatsApp Image 2025-08-08 at 22.07.06_0b9947a7.jpg" alt="" />
+  <img src="IMG-20250808-WA0035.jpg" alt="" />
+</div>
+<div class="app">
+
+  <!-- rotating heart-shaped photo collage background -->
+  <div class="bg-heart-wrap" aria-hidden="true">
+    <div class="bg-heart" id="bgHeart">
+      <!-- Replace these images with your GF photos (recommended 9 images). -->
+      <img src="IMG-20250808-WA0026.jpg" alt="">
+      <img src="IMG-20250808-WA0027.jpg" alt="">
+       <img src="IMG-20250808-WA0032.jpg" alt="">
+      <!-- ...more images... -->
+    </div>
+  </div>
+
+  <div class="card" role="main" aria-label="Birthday surprise app">
+
+    <div class="top-row">
+      <div class="title-left">
+        <div class="top-small">Preparing something special...</div>
+        <div style="font-weight:800;font-size:13px">For Madam Ji — Surprise ❤️</div>
+      </div>
+      <div class="controls">
+        <button class="btn ghost" id="openLetterBtn">Open Letter</button>
+        <button class="btn ghost" id="restartBtn">Restart</button>
+        <button class="btn" id="musicBtn">Play Music</button>
+      </div>
+    </div>
+
+    <div class="sections">
+      <div class="left">
+
+        <!-- PREPARING: big rotating heart (no circle) -->
+        <div class="prepare-screen screen" id="screenPrepare">
+          <div class="big-heart-rot" aria-hidden="true">
+            <!-- SVG heart only (no circle) -->
+            <svg viewBox="0 0 64 64" width="160" height="160" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="gradHeart" x1="0" x2="1">
+                  <stop offset="0" stop-color="#ffb3d9"/>
+                  <stop offset="1" stop-color="#ff6fa3"/>
+                </linearGradient>
+              </defs>
+              <path d="M32 56s24-14 24-30S40 6 32 16 8 14 8 26s24 30 24 30z" fill="url(#gradHeart)"/>
+            </svg>
+          </div>
+
+          <div class="prep-text">
+            <h2 id="prepHeading">Preparing Something Special</h2>
+            <p>Adding sparkles, hearts and a little magic ✨</p>
+            <div style="margin-top:12px">
+              <button class="btn" id="toCelebrate">Reveal the Wish</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- CELEBRATE: single message box -->
+        <div class="celebrate screen" id="screenCelebrate" style="display:none">
+          <h3 style="margin:0 0 8px 0">Time to Celebrate 🎉</h3>
+          <p class="hint">A small wish just for today — tap Next to continue.</p>
+          <div style="margin-top:14px" class="msg-box">
+            <div style="font-weight:800;font-size:18px">🎂 Happy Birthday, my love! ❤️ Every moment with you is like a dream I never want to wake up from. You make my life brighter, my days happier, and my heart fuller. Thank you for being mine — today is your day, and I hope it's as magical as you are! 🌈💫💐</div>
+          </div>
+          <div style="margin-top:12px">
+            <button class="btn" id="toGreet">Next: Greeting</button>
+          </div>
+        </div>
+
+        <!-- GREETING: BIG animated Happy Birthday + You're Amazing -->
+        <div class="greet screen" id="screenGreet" style="display:none">
+          <h1 id="greetTitle">Happy Birthday Baby ❤️</h1>
+          <p class="sub">May your day be as lovely as your smile.</p>
+
+          <div class="you-are" style="margin-top:16px">
+            <div class="you-left">
+              <div class="big-pill">YOU'RE AMAZING</div>
+              <div class="msg-seq">
+                <div id="msgDisplay" class="msg-display">Click Next to read a message</div>
+                <div class="seq-controls">
+                  <button class="btn ghost" id="prevMsg">Prev</button>
+                  <button class="btn" id="nextMsg">Next</button>
+                </div>
+                <div style="margin-top:8px;color:var(--muted);font-size:13px">There are 5 special messages — click Next to cycle through them.</div>
+              </div>
+            </div>
+            <!-- small gallery preview on right -->
+            <div style="width:240px">
+              <div style="font-weight:700;margin-bottom:8px">Moments (Preview)</div>
+              <div class="square-frame" id="miniGallery">
+                <div class="gallery-img" id="mg0" style="background-image:url('IMG-20250808-WA0023.jpg');"></div>
+                <div class="gallery-img" id="mg1" style="background-image:url('IMG-20250808-WA0024.jpg');"></div>
+                <div class="gallery-img" id="mg2" style="background-image:url('IMG-20250808-WA0025.jpg');"></div>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:8px">
+                <button class="btn ghost" id="miniPrev">⟵</button>
+                <button class="btn ghost" id="miniNext">⟶</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div> <!-- left end -->
+
+      <!-- RIGHT column: bigger gallery and letter button -->
+      <div class="right-col">
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div style="font-weight:800">Photo Gallery</div>
+            <div style="color:var(--muted);font-size:13px">Use ← → keys too</div>
+          </div>
+          <div class="square-frame" id="galleryFrame" style="margin-top:10px">
+            <!-- Gallery images (change these to your photos). Use as many as you want; update JS totalImages accordingly. -->
+            <div class="gallery-img" id="g0" style="background-image:url('IMG-20250808-WA0034.jpg');"></div>
+            <div class="gallery-img" id="g1" style="background-image:url('IMG-20250808-WA0031.jpg');"></div>
+            <div class="gallery-img" id="g2" style="background-image:url('IMG-20250808-WA0025.jpg');"></div>
+            <div class="gallery-img" id="g3" style="background-image:url('IMG-20250808-WA0029.jpg');"></div>
+            <div class="gallery-img" id="g4" style="background-image:url('IMG-20250808-WA0035.jpg');"></div>
+          </div>
+          <div class="gallery-controls">
+            <button class="btn ghost" id="prevImg">Prev</button>
+            <button class="btn" id="nextImg">Next</button>
+          </div>
+        </div>
+
+        <div style="margin-top:12px">
+          <button class="btn" id="openLetterBtn2">Open Special Letter</button>
+        </div>
+
+      </div> <!-- right end -->
+
+    </div> <!-- sections end -->
+
+
+  </div> <!-- card end -->
+
+  <!-- Letter popup -->
+  <div class="popup-back" id="popupBack" role="dialog" aria-hidden="true">
+    <div class="letter-box">
+      <div class="animated-hearts"></div>
+      <div class="animated-sparkles"></div>
+      <div class="animated-theme-hearts"></div>
+      <div class="love-letter">
+        <h2>💌 To the Love of My Life ❤️</h2>
+        <p>
+          Happy Birthday, my jaan. 🎂💖🎉🎈<br><br>
+          Every single day with you feels like a gift 🎁 I never knew I deserved. But today, the world 🌍 celebrates YOU — the most beautiful soul 💫 I’ve ever known. Your smile 😊 lights up my darkest moments 🌌, and your voice 🎶 calms every storm ⛈️ inside me.<br><br>
+          You are not just the girl I love 💘 — you are the heartbeat 💓 of my life, my safe place 🏡, my reason to dream 💭, to grow 🌱, and to believe ✨. Your love has changed me, made me softer 🤗, stronger 💪, and braver 🛡️. I never knew love could feel like this — peaceful 🌙 and thrilling 🎢 all at once.<br><br>
+          Today, I want you to know that no matter what life throws at us 🌪️, I will always be by your side 🤝 — cheering for you 🎊, holding you 🤍, loving you endlessly ♾️. Your happiness means everything to me 🫶. I’ll always fight for your smile 😘, your dreams 🌠, and your heart 💖.<br><br>
+          I hope this birthday 🎈 brings you as much joy 😍 as you’ve given me every day since you came into my life. You are rare 💎. You are precious 🌸. You are mine 💞. Always and forever ⏳.<br><br>
+          Happy Birthday, meri jaan. May your day be filled with all the love you give me — and so much more. 🥳💐🎂🌹<br><br>
+          Forever yours,<br>
+          <b>— Harshavardhan 💘👑</b>
+        </p>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-top:12px">
+        <button class="btn ghost" id="closePopup">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- audio -->
+  <audio id="music" loop>
+    <!-- Custom song: Forever Love -->
+    <source src="mixkit-forever-love-38.mp3" type="audio/mpeg">
+  </audio>
+
+</div>
+
+<script>
+// --- Falling hearts animation ---
+const heartColors = [
+  'url(#fallGrad1)', 'url(#fallGrad2)', 'url(#fallGrad3)'
+];
+function createFallingHeart() {
+  const heart = document.createElement('div');
+  heart.className = 'falling-heart';
+  const size = 18 + Math.random()*32;
+  const left = Math.random()*100;
+  const dur = 3.5 + Math.random()*3.5;
+  const scale = 0.7 + Math.random()*1.1;
+  const endY = window.innerHeight + 60 + Math.random()*60;
+  const rot = -30 + Math.random()*60;
+  const colorIdx = Math.floor(Math.random()*heartColors.length);
+  heart.style.left = left + 'vw';
+  heart.style.width = size + 'px';
+  heart.style.height = size + 'px';
+  heart.style.setProperty('--h-scale', scale);
+  heart.style.setProperty('--h-end', endY+'px');
+  heart.style.animationDuration = dur + 's';
+  heart.style.transform = `rotate(${rot}deg)`;
+  heart.innerHTML = `
+    <svg viewBox="0 0 32 32" width="100%" height="100%">
+      <defs>
+        <linearGradient id="fallGrad1" x1="0" x2="1"><stop offset="0" stop-color="#ffb3d9"/><stop offset="1" stop-color="#ff6fa3"/></linearGradient>
+        <linearGradient id="fallGrad2" x1="0" x2="1"><stop offset="0" stop-color="#8e6cff"/><stop offset="1" stop-color="#ffb3d9"/></linear-gradient>
+        <linearGradient id="fallGrad3" x1="0" x2="1"><stop offset="0" stop-color="#fffbe6"/><stop offset="1" stop-color="#ffb3d9"/></linear-gradient>
+      </defs>
+      <path d="M16 29s13-7.5 13-16S21.5 3 16 10 3 5.5 3 13 16 29 16 29z" fill="${heartColors[colorIdx]}" filter="url(#glow)"/>
+      <filter id="glow">
+        <feGaussianBlur stdDeviation="1.2" result="coloredBlur"/>
+        <feMerge>
+          <feMergeNode in="coloredBlur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </svg>`;
+  document.body.appendChild(heart);
+  setTimeout(()=>heart.remove(), dur*1000+500);
+}
+function heartLoop() {
+  createFallingHeart();
+  setTimeout(heartLoop, 420 + Math.random()*420);
+}
+window.addEventListener('DOMContentLoaded',()=>{
+  for(let i=0;i<6;i++) setTimeout(createFallingHeart, i*400);
+  heartLoop();
+});
+// Floating heart on click
+document.addEventListener('click', function(e){
+  if(e.target.closest('.btn,.bg-heart img,.gallery-img')){
+    const heart = document.createElement('div');
+    heart.className = 'floating-heart';
+    heart.innerHTML = `<svg viewBox="0 0 32 32" width="32" height="32"><defs><linearGradient id="fhglow" x1="0" x2="1"><stop offset="0" stop-color="#ffb3d9"/><stop offset="1" stop-color="#ff6fa3"/></linearGradient></defs><path d="M16 29s13-7.5 13-16S21.5 3 16 10 3 5.5 3 13 16 29 16 29z" fill="url(#fhglow)"/></svg>`;
+    heart.style.left = (e.pageX-16)+'px';
+    heart.style.top = (e.pageY-16)+'px';
+    document.body.appendChild(heart);
+    setTimeout(()=>heart.remove(),1200);
+  }
+});
+// Fade in card on load
+window.addEventListener('DOMContentLoaded',()=>{
+  document.querySelector('.card').style.opacity = 0;
+  setTimeout(()=>{
+    document.querySelector('.card').style.opacity = 1;
+  }, 100);
+});
+/* ----------------- Navigation flows ----------------- */
+const screenPrepare = document.getElementById('screenPrepare');
+const screenCelebrate = document.getElementById('screenCelebrate');
+const screenGreet = document.getElementById('screenGreet');
+
+document.getElementById('toCelebrate').addEventListener('click', ()=> {
+  screenPrepare.style.display='none';
+  screenCelebrate.style.display='block';
+  // try to play a short celebrate sound & music
+  tryPlayMusic();
+});
+
+document.getElementById('toGreet').addEventListener('click', ()=> {
+  screenCelebrate.style.display='none';
+  screenGreet.style.display='block';
+  confettiBurst();
+});
+
+/* ----------------- Music control & autoplay attempt ----------------- */
+
+const music = document.getElementById('music');
+const musicBtn = document.getElementById('musicBtn');
+let musicPlaying = false;
+
+function tryPlayMusic(){
+  music.play().then(()=>{
+    musicPlaying = true;
+    musicBtn.textContent = 'Pause Music';
+  }).catch(()=>{
+    musicPlaying = false;
+    musicBtn.textContent = 'Play Music';
+  });
+}
+musicBtn.addEventListener('click', ()=>{
+  if(musicPlaying){
+    music.pause();
+    musicPlaying = false;
+    musicBtn.textContent = 'Play Music';
+  } else {
+    music.play().then(()=>{
+      musicPlaying = true;
+      musicBtn.textContent = 'Pause Music';
+    }).catch(()=>{
+      musicPlaying = false;
+      musicBtn.textContent = 'Play Music';
+    });
+  }
+});
+// also attempt once on first user gesture
+document.addEventListener('click', function onFirst(){ tryPlayMusic(); document.removeEventListener('click', onFirst); }, {once:true});
+
+/* ----------------- Sequential 5 messages logic ----------------- */
+const messages = [
+  `<span style="color:#111;font-family:'Poppins','Allura',cursive;font-size:1.3rem;display:block;font-weight:600;">💌 Today, I celebrate you — my heart’s queen. 👑</span>`,
+  `<span style="color:#111;font-family:'Poppins','Allura',cursive;font-size:1.3rem;display:block;font-weight:600;">You’re not just my love — you’re my peace, my home, my everything. 🏡❤️</span>`,
+  `<span style="color:#111;font-family:'Poppins','Allura',cursive;font-size:1.3rem;display:block;font-weight:600;">Even if I searched the whole universe, I’d still choose you. Always you. 🌌💖</span>`,
+  `<span style="color:#111;font-family:'Poppins','Allura',cursive;font-size:1.3rem;display:block;font-weight:600;">One smile from you, and my whole world lights up.🌟😊</span>`,
+  `<span style="color:#111;font-family:'Poppins','Allura',cursive;font-size:1.3rem;display:block;font-weight:600;">You walked in, and suddenly... forever didn’t seem long enough. 🕰️💫</span>`
+];
+let msgIndex = 0;
+const msgDisplay = document.getElementById('msgDisplay');
+function updateMsg(){
+  msgDisplay.innerHTML = messages[msgIndex];
+}
+document.getElementById('nextMsg').addEventListener('click', ()=>{
+  msgIndex = (msgIndex + 1) % messages.length;
+  updateMsg();
+});
+document.getElementById('prevMsg').addEventListener('click', ()=>{
+  msgIndex = (msgIndex - 1 + messages.length) % messages.length;
+  updateMsg();
+});
+updateMsg();
+
+/* ----------------- Gallery slider (large) ----------------- */
+let galleryIndex = 0;
+const totalImages = 5; // Change this number to match your total gallery images
+function showGallery(i){
+  galleryIndex = (i + totalImages) % totalImages;
+  for(let k=0;k<totalImages;k++){
+    const el = document.getElementById('g'+k);
+    if(!el) continue;
+    if(k === galleryIndex){ el.classList.add('active'); el.style.transform='translateX(0)'; el.style.opacity=1; }
+    else { el.classList.remove('active'); el.style.opacity=0; el.style.transform = (k < galleryIndex ? 'translateX(-100%)' : 'translateX(100%)'); }
+  }
+}
+document.getElementById('nextImg').addEventListener('click', ()=> showGallery(galleryIndex+1));
+document.getElementById('prevImg').addEventListener('click', ()=> showGallery(galleryIndex-1));
+showGallery(0);
+
+/* mini gallery on greet */
+let miniIndex = 0;
+const miniTotal = 3;
+function showMini(i){
+  miniIndex = (i + miniTotal) % miniTotal;
+  for(let k=0;k<miniTotal;k++){
+    const el = document.getElementById('mg'+k);
+    if(!el) continue;
+    if(k === miniIndex){ el.classList.add('active'); el.style.opacity=1; el.style.transform='translateX(0)'; }
+    else { el.classList.remove('active'); el.style.opacity=0; el.style.transform = (k < miniIndex ? 'translateX(-100%)' : 'translateX(100%)'); }
+  }
+}
+document.getElementById('miniNext').addEventListener('click', ()=> showMini(miniIndex+1));
+document.getElementById('miniPrev').addEventListener('click', ()=> showMini(miniIndex-1));
+showMini(0);
+
+/* ----------------- Letter popup & typing ----------------- */
+const popupBack = document.getElementById('popupBack');
+const letterTextEl = document.getElementById('letterText');
+const openLetterBtns = [ document.getElementById('openLetterBtn'), document.getElementById('openLetterBtn2') ];
+const closePopup = document.getElementById('closePopup');
+
+const letterContent = `My Dearest Madam Ji,
+
+On this beautiful day I wish you all the smiles, love and warm hugs.
+You are precious and today I celebrate your lovely heart.
+
+With all my love,
+— Harshavardhan`;
+
+function openPopup(){
+  popupBack.style.display='flex';
+  letterTextEl.textContent = '';
+  // typing animation
+  let idx = 0;
+  const speed = 16;
+  const t = setInterval(()=>{
+    idx++;
+    letterTextEl.textContent = letterContent.substring(0, idx);
+    if(idx >= letterContent.length) clearInterval(t);
+  }, speed);
+}
+function closePopupFn(){
+  popupBack.style.display='none';
+}
+openLetterBtns.forEach(b=> b.addEventListener('click', openPopup));
+closePopup.addEventListener('click', closePopupFn);
+popupBack.addEventListener('click', (e)=>{ if(e.target === popupBack) closePopupFn(); });
+
+/* ----------------- Restart resetting ----------------- */
+document.getElementById('restartBtn').addEventListener('click', ()=>{
+  // go back to start
+  screenGreet.style.display='none';
+  screenCelebrate.style.display='none';
+  screenPrepare.style.display='flex';
+  // reset gallery & messages
+  galleryIndex = 0; showGallery(0); msgIndex = 0; updateMsg();
+  // reset music
+  music.pause(); music.currentTime=0; musicPlaying=false; musicBtn.textContent='Play Music';
+});
+
+/* ----------------- small confetti burst effect ----------------- */
+function confettiBurst(){
+  for(let i=0;i<28;i++){
+    const d = document.createElement('div');
+    d.style.position='fixed';
+    d.style.left = (50 + (Math.random()*800-400)) + 'px';
+    d.style.top = (120 + Math.random()*120) + 'px';
+    d.style.width = (6 + Math.random()*8) + 'px';
+    d.style.height = (10 + Math.random()*12) + 'px';
+    d.style.background = `hsl(${Math.random()*360} 80% 60%)`;
+    d.style.opacity = '0.95';
+    d.style.borderRadius = '2px';
+    d.style.zIndex = 9999;
+    document.body.appendChild(d);
+    const dy = 280 + Math.random()*220;
+    d.animate([
+      { transform: `translateY(0) rotate(0deg)`, opacity: 1 },
+      { transform: `translateY(${dy}px) rotate(${Math.random()*720}deg)`, opacity: 0 }
+    ], { duration: 1200 + Math.random()*800, easing: 'cubic-bezier(.2,.9,.2,1)' });
+    setTimeout(()=> d.remove(), 2200);
+  }
+}
+
+/* ----------------- Keyboard navigation for gallery & screens ----------------- */
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'ArrowRight'){ // next gallery or next screen depending on focus
+    showGallery(galleryIndex+1);
+  } else if(e.key === 'ArrowLeft'){
+    showGallery(galleryIndex-1);
+  } else if(e.key === 'Escape'){
+    closePopupFn();
+  }
+});
+
+/* ----------------- Make background images a bit animated (slow zoom) ----------------- */
+const bgImgs = document.querySelectorAll('#bgHeart img');
+let bgAnimIdx = 0;
+setInterval(()=>{
+  bgImgs.forEach((im,i)=>{
+    im.style.transition = 'transform 6s ease';
+    if(i === bgAnimIdx) im.style.transform = 'scale(1.08) rotate(-1deg)';
+    else im.style.transform = 'scale(1) rotate(0deg)';
+  });
+  bgAnimIdx = (bgAnimIdx + 1) % bgImgs.length;
+}, 5000);
+
+/* ----------------- Accessibility: ensure gallery images exist -- hide missing ----------------- */
+for(let i=0;i<10;i++){
+  const el = document.getElementById('g'+i);
+  if(!el) break;
+}
+
+/* ------------- End of script ------------- */
+
+/* Replace content instructions for you (Harshavardhan):
+   - Put your GF photos: replace <img> URLs inside .bg-heart (top of file) with your photos (9 recommended).
+   - Replace gallery images by changing background-image URLs in elements with ids g0..g4.
+   - Replace messages[] array above with your 5 custom messages.
+   - Replace letterContent text to your final letter.
+*/
+</script>
+<script>
+// Animated hearts, sparkles, and dreamy theme hearts for special letter
+function randomizeAnimatedBG() {
+  const hearts = document.querySelector('.letter-box .animated-hearts');
+  const sparkles = document.querySelector('.letter-box .animated-sparkles');
+  const themeHearts = document.querySelector('.letter-box .animated-theme-hearts');
+  if (hearts && sparkles) {
+    hearts.innerHTML = '';
+    sparkles.innerHTML = '';
+    for (let i = 0; i < 7; i++) {
+      const h = document.createElement('span');
+      h.style.left = Math.random()*90+5+'%';
+      h.style.bottom = Math.random()*60+5+'%';
+      h.style.animationDelay = (Math.random()*4)+'s';
+      h.style.opacity = 0.5+Math.random()*0.5;
+      h.style.transform = `scale(${0.7+Math.random()*0.7})`;
+      hearts.appendChild(h);
+    }
+    for (let i = 0; i < 12; i++) {
+      const s = document.createElement('span');
+      s.style.left = Math.random()*95+'%';
+      s.style.top = Math.random()*95+'%';
+      s.style.animationDelay = (Math.random()*3)+'s';
+      s.style.opacity = 0.4+Math.random()*0.6;
+      sparkles.appendChild(s);
+    }
+  }
+  if (themeHearts) {
+    themeHearts.innerHTML = '';
+    for (let i = 0; i < 8; i++) {
+      const t = document.createElement('span');
+      t.style.left = Math.random()*95+'%';
+      t.style.top = (60+Math.random()*35)+'%';
+      t.style.width = (36+Math.random()*32)+'px';
+      t.style.height = t.style.width;
+      t.style.animationDelay = (Math.random()*8)+'s';
+      t.style.opacity = 0.16+Math.random()*0.18;
+      t.style.background = `linear-gradient(135deg, #ffb3d9 ${(60+Math.random()*20)}%, #8e6cff 100%)`;
+      t.style.transform = `scale(${0.7+Math.random()*0.7}) rotate(${Math.random()*40-20}deg)`;
+      themeHearts.appendChild(t);
+    }
+  }
+}
+document.addEventListener('DOMContentLoaded', randomizeAnimatedBG);
+document.getElementById('openLetterBtn')?.addEventListener('click', randomizeAnimatedBG);
+document.getElementById('openLetterBtn2')?.addEventListener('click', randomizeAnimatedBG);
+</script>
+</body>
+</html>
